@@ -2,10 +2,12 @@ import { Action, ActionPanel, Icon, List } from "@raycast/api";
 import { useEffect, useState } from "react";
 import { Entry } from "./utils/getEntries";
 import { Episodes, getEntryEpisodes } from "./utils/getEntryEpisodes";
+import EpisodeMetadata from "./metadata";
 
 export default function EpisodeList({ entry }: { entry: Entry }) {
   const [loading, setLoading] = useState(true);
   const [episodes, setEpisodes] = useState<Episodes>({ episode: [], ova: [], movie: [] });
+  const [showMetadata, setShowMetadata] = useState(true);
 
   // get episodes of entry
   useEffect(() => {
@@ -23,18 +25,33 @@ export default function EpisodeList({ entry }: { entry: Entry }) {
   }, [episodes]);
 
   return (
-    <List isLoading={loading} navigationTitle={`${entry.creator} ${entry.title}`}>
+    <List isLoading={loading} navigationTitle={`${entry.creator} ${entry.title}`} isShowingDetail={showMetadata}>
       {episodes.episode.length > 0 && (
         <List.Section title="Episodes">
           {episodes.episode.map((episode) => (
             <List.Item
               key={episode.id}
               title={episode.num.toString()}
-              subtitle={episode.title === "" ? `Episode` : episode.title}
+              subtitle={episode.title === "" ? "Episode" : episode.title}
+              detail={showMetadata ? <EpisodeMetadata episode={episode} /> : ""}
               actions={
                 <ActionPanel>
                   <Action.Open title="Watch" icon={Icon.Video} target={episode.absPath} />
                   <Action.ShowInFinder title="Open in Finder" icon={Icon.Folder} path={episode.absPath} />
+                  <Action.Open
+                    title="Open in Terminal"
+                    icon={Icon.Terminal}
+                    target={entry.absPath}
+                    application={"com.googlecode.iterm2"}
+                    shortcut={{ modifiers: ["cmd"], key: "t" }}
+                  />
+                  <Action
+                    icon={Icon.Info}
+                    title="Show Video Metadata"
+                    onAction={async () => {
+                      setShowMetadata(!showMetadata);
+                    }}
+                  />
                 </ActionPanel>
               }
             />
