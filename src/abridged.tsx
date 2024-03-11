@@ -13,6 +13,7 @@ export default function Command() {
     series: "#B69BF1",
     shot: "#59dc9b",
     short: "#70a4ff",
+    song: "#ff8c9d",
   };
 
   const [loading, setLoading] = useState(true);
@@ -93,21 +94,14 @@ export default function Command() {
             value="all"
             icon={{ source: Icon.CircleFilled, tintColor: Color.PrimaryText }}
           />
-          <List.Dropdown.Item
-            title="Series"
-            value="series"
-            icon={{ source: Icon.CircleProgress100, tintColor: categoryColors["series"] }}
-          />
-          <List.Dropdown.Item
-            title="Shots"
-            value="shot"
-            icon={{ source: Icon.CircleProgress100, tintColor: categoryColors["shot"] }}
-          />
-          <List.Dropdown.Item
-            title="Shorts"
-            value="short"
-            icon={{ source: Icon.CircleProgress100, tintColor: categoryColors["short"] }}
-          />
+          {Object.entries(categoryColors).map(([key, color]) => (
+            <List.Dropdown.Item
+              key={key}
+              title={key.charAt(0).toUpperCase() + key.slice(1)}
+              value={key}
+              icon={{ source: Icon.CircleProgress100, tintColor: color }}
+            />
+          ))}
         </List.Dropdown>
       }
     >
@@ -124,6 +118,13 @@ export default function Command() {
                 <ActionPanel>
                   <Action.Push title="List Episodes" icon={Icon.AppWindow} target={<EpisodeList entry={entry} />} />
                   <Action.ShowInFinder title="Open in Finder" icon={Icon.Folder} path={entry.absPath} />
+                  <Action.Open
+                    title="Open in Terminal"
+                    icon={Icon.Terminal}
+                    target={entry.absPath}
+                    application={"com.googlecode.iterm2"}
+                    shortcut={{ modifiers: ["cmd"], key: "t" }}
+                  />
 
                   <ActionPanel.Section>
                     <Action

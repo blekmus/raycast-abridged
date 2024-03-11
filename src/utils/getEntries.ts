@@ -6,7 +6,7 @@ export interface Entry {
   title: string;
   creator: string;
   absPath: string;
-  type: "series" | "short" | "shot";
+  type: "series" | "short" | "shot" | "song";
 }
 
 export const getEntries = async (dir: string) => {
@@ -24,6 +24,11 @@ export const getEntries = async (dir: string) => {
   let shots = await fsPromises.readdir(path.join(dir, "Shots"), { withFileTypes: true });
   shots = shots.filter((file) => !/(^|\/)\.[^\\/\\.]/g.test(file.name));
   shots = shots.filter((file) => file.isDirectory());
+
+  // get all folders inside of dir/Songs without hidden files
+  let songs = await fsPromises.readdir(path.join(dir, "Songs"), { withFileTypes: true });
+  songs = songs.filter((file) => !/(^|\/)\.[^\\/\\.]/g.test(file.name));
+  songs = songs.filter((file) => file.isDirectory());
 
   const entries: Entry[] = [];
   let id = 0;
@@ -62,6 +67,18 @@ export const getEntries = async (dir: string) => {
 
     id += 1;
     entries.push({ id, title, creator, absPath, type: "shot" });
+  }
+
+  // add all songs to songs
+  for (const entryDir of songs) {
+    const title = entryDir.name.replace(/^\[[^\]]+\] /g, "");
+    const absPath = path.join(dir, "Songs", entryDir.name);
+
+    const creatorMatch = entryDir.name.match(/^\[[^\]]+\]/g);
+    const creator = creatorMatch ? (creatorMatch[0] as string) : "";
+
+    id += 1;
+    entries.push({ id, title, creator, absPath, type: "song" });
   }
 
   return entries;

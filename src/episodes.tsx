@@ -33,7 +33,7 @@ export default function EpisodeList({ entry }: { entry: Entry }) {
               subtitle={episode.title === "" ? `Episode` : episode.title}
               actions={
                 <ActionPanel>
-                  <Action.Open title="Open" icon={Icon.Video} target={episode.absPath} />
+                  <Action.Open title="Watch" icon={Icon.Video} target={episode.absPath} />
                   <Action.ShowInFinder title="Open in Finder" icon={Icon.Folder} path={episode.absPath} />
                 </ActionPanel>
               }
