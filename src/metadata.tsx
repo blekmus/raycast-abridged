@@ -21,7 +21,7 @@ function formatDate(inputDate: string) {
 
 export default function EpisodeMetadata({ episode }: { episode: Episode }) {
   try {
-    const { isLoading, data, error } = useExec("/opt/homebrew/bin/ffprobe", [
+    const { isLoading, data } = useExec("/opt/homebrew/bin/ffprobe", [
       "-v",
       "quiet",
       "-print_format",
@@ -31,63 +31,44 @@ export default function EpisodeMetadata({ episode }: { episode: Episode }) {
       episode.absPath,
     ]);
 
-    if (error) {
-      return <List.Item.Detail isLoading={false} markdown="No metadata available" />;
-    }
+    const results: any = useMemo(() => JSON.parse(data || ""), [data]);
 
-    if (data) {
-      // too lazy to type this out
-      const results: any = useMemo(() => JSON.parse(data), [data]);
-
-      if (results.streams) {
-        const imageStream = results.streams.find((stream: any) => stream.codec_type === "video");
-        if (imageStream) {
-          const image = imageStream.tags?.comment;
-          if (image) {
-            return (
-              <List.Item.Detail
-                isLoading={isLoading}
-                markdown={results.format?.tags?.DESCRIPTION}
-                metadata={
-                  <List.Item.Detail.Metadata>
-                    <List.Item.Detail.Metadata.Label title="Title" text={results.format?.tags?.title} />
-                    <List.Item.Detail.Metadata.Label title="Producer" text={results.format?.tags?.ARTIST} />
-                    <List.Item.Detail.Metadata.Label title="Date" text={formatDate(results.format?.tags?.DATE)} />
-                    <List.Item.Detail.Metadata.Separator />
-                    {results.format?.tags?.PURL && results.format?.tags?.PURL.includes("youtube") && (
-                      <List.Item.Detail.Metadata.Link title="Link" target={results.format?.tags?.PURL} text={"youtube.com"} />
-                    )}
-                  </List.Item.Detail.Metadata>
-                }
-              />
-            );
-          }
-        }
-      }
-
+    if (results.format.tags) {
       return (
         <List.Item.Detail
           isLoading={isLoading}
-          markdown={results.format?.tags?.DESCRIPTION}
+          markdown={results.format?.tags?.DESCRIPTION || results.format?.tags?.comment}
           metadata={
             <List.Item.Detail.Metadata>
               <List.Item.Detail.Metadata.Label title="Title" text={results.format?.tags?.title} />
-              <List.Item.Detail.Metadata.Label title="Producer" text={results.format?.tags?.ARTIST} />
-              <List.Item.Detail.Metadata.Label title="Date" text={formatDate(results.format?.tags?.DATE)} />
-              <List.Item.Detail.Metadata.Separator />
+              {results.format?.tags?.ARTIST && (
+                <List.Item.Detail.Metadata.Label title="Producer" text={results.format?.tags?.ARTIST} />
+              )}
+              {results.format?.tags?.DATE && (
+                <List.Item.Detail.Metadata.Label title="Date" text={formatDate(results.format?.tags?.DATE)} />
+              )}
+
               {results.format?.tags?.PURL && results.format?.tags?.PURL.includes("youtube") && (
-                <List.Item.Detail.Metadata.Link title="Link" target={results.format?.tags?.PURL} text={"youtube.com"} />
+                <>
+                  <List.Item.Detail.Metadata.Separator />
+                  <List.Item.Detail.Metadata.Link
+                    title="Link"
+                    target={results.format?.tags?.PURL}
+                    text={"youtube.com"}
+                  />
+                </>
               )}
             </List.Item.Detail.Metadata>
           }
         />
       );
     } else {
-      return <List.Item.Detail isLoading={false} />;
+      return <List.Item.Detail isLoading={true} />;
     }
 
     // if there's an image attached, show it
   } catch (error) {
-    return <List.Item.Detail isLoading={true} />;
+    console.log(error)
+    return <List.Item.Detail isLoading={false} />;
   }
 }

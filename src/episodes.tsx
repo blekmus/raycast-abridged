@@ -61,14 +61,64 @@ export default function EpisodeList({ entry }: { entry: Entry }) {
       {episodes.ova.length > 0 && (
         <List.Section title="OVAs">
           {episodes.ova.map((ova) => (
-            <List.Item key={ova.id} title={ova.num.toString()} subtitle={ova.title} />
+            <List.Item
+              key={ova.id}
+              title={ova.num.toString()}
+              subtitle={ova.title}
+              detail={showMetadata ? <EpisodeMetadata episode={ova} /> : ""}
+              actions={
+                <ActionPanel>
+                  <Action.Open title="Watch" icon={Icon.Video} target={ova.absPath} />
+                  <Action.ShowInFinder title="Open in Finder" icon={Icon.Folder} path={ova.absPath} />
+                  <Action.Open
+                    title="Open in Terminal"
+                    icon={Icon.Terminal}
+                    target={entry.absPath}
+                    application={"com.googlecode.iterm2"}
+                    shortcut={{ modifiers: ["cmd"], key: "t" }}
+                  />
+                  <Action
+                    icon={Icon.Info}
+                    title="Show Video Metadata"
+                    onAction={async () => {
+                      setShowMetadata(!showMetadata);
+                    }}
+                  />
+                </ActionPanel>
+              }
+            />
           ))}
         </List.Section>
       )}
       {episodes.movie.length > 0 && (
         <List.Section title="Movies">
           {episodes.movie.map((movie) => (
-            <List.Item key={movie.id} title={movie.num.toString()} subtitle={movie.title} />
+            <List.Item
+              key={movie.id}
+              title={movie.num.toString()}
+              subtitle={movie.title}
+              detail={showMetadata ? <EpisodeMetadata episode={movie} /> : ""}
+              actions={
+                <ActionPanel>
+                  <Action.Open title="Watch" icon={Icon.Video} target={movie.absPath} />
+                  <Action.ShowInFinder title="Open in Finder" icon={Icon.Folder} path={movie.absPath} />
+                  <Action.Open
+                    title="Open in Terminal"
+                    icon={Icon.Terminal}
+                    target={entry.absPath}
+                    application={"com.googlecode.iterm2"}
+                    shortcut={{ modifiers: ["cmd"], key: "t" }}
+                  />
+                  <Action
+                    icon={Icon.Info}
+                    title="Show Video Metadata"
+                    onAction={async () => {
+                      setShowMetadata(!showMetadata);
+                    }}
+                  />
+                </ActionPanel>
+              }
+            />
           ))}
         </List.Section>
       )}
