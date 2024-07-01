@@ -67,6 +67,9 @@ export const getEntryEpisodes = async (entry: Entry) => {
         const itemNumMatch = movie.match(/\d+|\./gi);
         const itemNum = itemNumMatch ? (itemNumMatch.join("") as string) : "";
         episodes.movie.push({ id, title, num: itemNum, absPath: path.join(entry.absPath, episodeFile.name) });
+      } else {
+        // set the number to title if there's no "Episode 01" scheme followed
+        episodes.episode.push({ id, title: "", num: title, absPath: path.join(entry.absPath, episodeFile.name) });
       }
     } else {
       const itemNum = "1";
